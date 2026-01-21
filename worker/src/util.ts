@@ -1,5 +1,5 @@
 import { MonitorTarget, WebhookConfig } from '../../types/config'
-import { maintenances, workerConfig } from '../../uptime.config'
+import { workerConfig } from '../../uptime.config'
 
 async function getWorkerLocation() {
   const res = await fetch('https://cloudflare.com/cdn-cgi/trace')
@@ -161,20 +161,7 @@ const formatAndNotify = async (
     return
   }
 
-  // Skip notification if monitor is in maintenance
-  const maintenanceList = maintenances
-    .filter(
-      (m) =>
-        new Date(timeNow * 1000) >= new Date(m.start) &&
-        (!m.end || new Date(timeNow * 1000) <= new Date(m.end))
-    )
-    .map((e) => e.monitors || [])
-    .flat()
 
-  if (maintenanceList.includes(monitor.id)) {
-    console.log(`Skipping notification for ${monitor.name} (in maintenance)`)
-    return
-  }
 
   if (workerConfig.notification?.webhook) {
     const notification = formatStatusChangeNotification(
