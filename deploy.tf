@@ -18,18 +18,18 @@ variable "CLOUDFLARE_ACCOUNT_ID" {
 
 resource "cloudflare_workers_kv_namespace" "uptimeflare_kv" {
   account_id = var.CLOUDFLARE_ACCOUNT_ID
-  title      = "uptimeflare_kv"
+  title      = "uptimeflare_kv-cbnflight"
 }
 
 resource "cloudflare_worker_script" "uptimeflare" {
   account_id         = var.CLOUDFLARE_ACCOUNT_ID
-  name               = "uptimeflare_worker"
+  name               = "uptimeflare_worker-cbnflight"
   content            = file("worker/dist/index.js")
   module             = true
   compatibility_date = "2023-11-08"
 
   kv_namespace_binding {
-    name         = "UPTIMEFLARE_STATE"
+    name         = "UPTIMEFLARE_STATE-cbnflight"
     namespace_id = cloudflare_workers_kv_namespace.uptimeflare_kv.id
   }
 }
@@ -44,7 +44,7 @@ resource "cloudflare_worker_cron_trigger" "uptimeflare_worker_cron" {
 
 resource "cloudflare_pages_project" "uptimeflare" {
   account_id        = var.CLOUDFLARE_ACCOUNT_ID
-  name              = "uptimeflare"
+  name              = "uptimeflare-cbnflight-cbnflight"
   production_branch = "main"
 
   deployment_configs {
