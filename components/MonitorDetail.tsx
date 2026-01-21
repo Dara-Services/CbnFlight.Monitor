@@ -4,7 +4,6 @@ import { IconAlertCircle, IconAlertTriangle, IconCircleCheck } from '@tabler/ico
 import DetailChart from './DetailChart'
 import DetailBar from './DetailBar'
 import { getColor } from '@/util/color'
-import { maintenances } from '@/uptime.config'
 import { useTranslation } from 'react-i18next'
 
 export default function MonitorDetail({
@@ -41,9 +40,7 @@ export default function MonitorDetail({
 
   // Hide real status icon if monitor is in maintenance
   const now = new Date()
-  const hasMaintenance = maintenances
-    .filter((m) => now >= new Date(m.start) && (!m.end || now <= new Date(m.end)))
-    .find((maintenance) => maintenance.monitors?.includes(monitor.id))
+  const hasMaintenance = false;
   if (hasMaintenance)
     statusIcon = (
       <IconAlertTriangle
