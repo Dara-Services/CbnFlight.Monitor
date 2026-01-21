@@ -1,33 +1,56 @@
-# Stage 1: Build
-FROM node:lts-bookworm AS builder
+# Multi-stage build para optimizar tamaño
+FROM node:18-alpine AS builder
 
 WORKDIR /app
 
+# Copiar archivos de dependencias
 COPY package*.json ./
 COPY worker/package*.json ./worker/
 
-RUN npm ci
-RUN cd worker && npm ci
+# Instalar dependencias
+RUN npm ci --only=production && \
+    cd worker && npm ci --only=production && cd ..
 
-# Copy all source files
+# Copiar código fuente
 COPY . .
 
-# Build the Next.js application
-RUN npx @cloudflare/next-on-pages
+# Build de Next.js
+RUN npm run build
 
-# Stage 2: Production
-FROM node:lts-bookworm AS production
+# Etapa de producción
+FROM node:18-alpine
 
-# Install bash and curl for runtime
-RUN apt-get update && apt-get install -y curl cron
+WORKDIR /app
 
-# Copy runtime dependencies from builder stage
-COPY --from=builder /app/ /app/
-COPY --from=builder /app/entrypoint.sh /entrypoint.sh
+# Instalar solo dependencias de producción
+COPY package*.json ./
+RUN npm ci --only=production
 
-RUN chmod +x /entrypoint.sh
+# Copiar build desde etapa anterior
+COPY --from=builder /app/.next ./.next
+COPY --from=builder /app/public ./public
+COPY --from=builder /app/next.config.js ./
+COPY --from=builder /app/uptime.config.ts ./
+COPY --from=builder /app/uptime.types.ts ./
 
-# Expose the Pages port
-EXPOSE 8788
+# Variables de entorno
+ENV NODE_ENV=production
+ENV PORT=3000
 
-ENTRYPOINT ["/entrypoint.sh"]
+# Exponer puerto
+EXPOSE 3000
+
+# Health check
+HEALTHCHECK --interval=30s --timeout=3s --start-period=40s --retries=3 \
+    CMD node -e "require('http').get('http://localhost:3000/api/data', (r) => {process.exit(r.statusCode === 200 ? 0 : 1)})"
+
+# Usuario no root por seguridad
+RUN addgroup -g 1001 -S nodejs && \
+    adduser -S nextjs -u 1001 && \
+    chown -R nextjs:nodejs /app
+
+USER nextjs
+
+# Comando de inicio
+CMD ["npm", "start"]
+

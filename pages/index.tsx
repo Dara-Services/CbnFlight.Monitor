@@ -1,38 +1,42 @@
 import Head from 'next/head'
 
 import { Inter } from 'next/font/google'
-import { MonitorTarget } from '@/types/config'
-import { maintenances, pageConfig, workerConfig } from '@/uptime.config'
+import { MonitorState, MonitorTarget } from '@/uptime.types'
+import { KVNamespace } from '@cloudflare/workers-types'
+import { pageConfig, workerConfig } from '@/uptime.config'
 import OverallStatus from '@/components/OverallStatus'
 import Header from '@/components/Header'
 import MonitorList from '@/components/MonitorList'
-import { Center, Text } from '@mantine/core'
+import { Center, Divider, Text } from '@mantine/core'
 import MonitorDetail from '@/components/MonitorDetail'
-import Footer from '@/components/Footer'
-import { useTranslation } from 'react-i18next'
-import { CompactedMonitorStateWrapper, getFromStore } from '@/worker/src/store'
 
 export const runtime = 'experimental-edge'
 const inter = Inter({ subsets: ['latin'] })
 
 export default function Home({
-  compactedStateStr,
+  state: stateStr,
   monitors,
 }: {
-  compactedStateStr: string
+  state: string
   monitors: MonitorTarget[]
   tooltip?: string
   statusPageLink?: string
 }) {
-  const { t } = useTranslation('common')
-  let state = new CompactedMonitorStateWrapper(compactedStateStr).uncompact()
+  let state;
+  if (stateStr !== undefined) {
+    state = JSON.parse(stateStr) as MonitorState
+  }
 
   // Specify monitorId in URL hash to view a specific monitor (can be used in iframe)
-  const monitorId = window.location.hash.substring(1)
+  const monitorId = window.location.hash.substring(1);
   if (monitorId) {
-    const monitor = monitors.find((monitor) => monitor.id === monitorId)
+    const monitor = monitors.find((monitor) => monitor.id === monitorId);
     if (!monitor || !state) {
-      return <Text fw={700}>{t('Monitor not found', { id: monitorId })}</Text>
+      return (
+        <Text fw={700}>
+          Monitor with id {monitorId} not found!
+        </Text>
+      )
     }
     return (
       <div style={{ maxWidth: '810px' }}>
@@ -45,32 +49,56 @@ export default function Home({
     <>
       <Head>
         <title>{pageConfig.title}</title>
-        <link rel="icon" href={pageConfig.favicon ?? '/favicon.png'} />
+        <link rel="icon" href="/favicon.ico" />
       </Head>
 
       <main className={inter.className}>
         <Header />
 
-        {state.lastUpdate === 0 ? (
+        {state === undefined ? (
           <Center>
-            <Text fw={700}>{t('Monitor State not defined')}</Text>
+            <Text fw={700}>
+              Monitor State is not defined now, please check your worker&apos;s status and KV
+              binding!
+            </Text>
           </Center>
         ) : (
           <div>
-            <OverallStatus state={state} monitors={monitors} maintenances={maintenances} />
+            <OverallStatus state={state} />
             <MonitorList monitors={monitors} state={state} />
           </div>
         )}
 
-        <Footer />
+        <Divider mt="lg" />
+        <Text size="xs" mt="xs" mb="xs" style={{
+          textAlign: 'center'
+        }}>
+          Open-source monitoring and status page powered by{' '}
+          <a href="https://github.com/lyc8503/UptimeFlare" target="_blank">
+            Uptimeflare
+          </a>{' '}
+          and{' '}
+          <a href="https://www.cloudflare.com/" target="_blank">
+            Cloudflare
+          </a>
+          , made with ❤ by{' '}
+          <a href="https://github.com/lyc8503" target="_blank">
+            lyc8503
+          </a>
+          .
+        </Text>
       </main>
     </>
   )
 }
 
 export async function getServerSideProps() {
-  // Read state as string from storage, to avoid hitting server-side cpu time limit
-  const compactedStateStr = await getFromStore(process.env as any, 'state')
+  const { UPTIMEFLARE_STATE } = process.env as unknown as {
+    UPTIMEFLARE_STATE: KVNamespace
+  }
+
+  // Read state as string from KV, to avoid hitting server-side cpu time limit
+  const state = (await UPTIMEFLARE_STATE?.get('state')) as unknown as MonitorState
 
   // Only present these values to client
   const monitors = workerConfig.monitors.map((monitor) => {
@@ -80,11 +108,9 @@ export async function getServerSideProps() {
       // @ts-ignore
       tooltip: monitor?.tooltip,
       // @ts-ignore
-      statusPageLink: monitor?.statusPageLink,
-      // @ts-ignore
-      hideLatencyChart: monitor?.hideLatencyChart,
+      statusPageLink: monitor?.statusPageLink
     }
   })
 
-  return { props: { compactedStateStr, monitors } }
+  return { props: { state, monitors } }
 }

@@ -1,0 +1,85 @@
+version: '3.8'
+
+services:
+  # Frontend Next.js
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: uptimeflare-web
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=production
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+    depends_on:
+      - redis
+    restart: unless-stopped
+    volumes:
+      - ./uptime.config.ts:/app/uptime.config.ts
+    networks:
+      - uptimeflare-network
+
+  # Worker de monitoreo (para opción auto-hospedada)
+  worker:
+    build:
+      context: .
+      dockerfile: Dockerfile.worker
+    container_name: uptimeflare-worker
+    environment:
+      - NODE_ENV=production
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+    depends_on:
+      - redis
+    restart: unless-stopped
+    volumes:
+      - ./uptime.config.ts:/app/uptime.config.ts
+    networks:
+      - uptimeflare-network
+
+  # Redis (reemplazo de Cloudflare KV)
+  redis:
+    image: redis:7-alpine
+    container_name: uptimeflare-redis
+    command: redis-server --appendonly yes
+    volumes:
+      - redis-data:/data
+    restart: unless-stopped
+    networks:
+      - uptimeflare-network
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 3s
+      retries: 3
+
+  # Nginx como reverse proxy
+  nginx:
+    image: nginx:alpine
+    container_name: uptimeflare-nginx
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./nginx/conf.d:/etc/nginx/conf.d:ro
+      - /etc/letsencrypt:/etc/letsencrypt:ro
+      - nginx-cache:/var/cache/nginx
+    depends_on:
+      - web
+    restart: unless-stopped
+    networks:
+      - uptimeflare-network
+
+volumes:
+  redis-data:
+    driver: local
+  nginx-cache:
+    driver: local
+
+networks:
+  uptimeflare-network:
+    driver: bridge
+

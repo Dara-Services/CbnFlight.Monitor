@@ -7,12 +7,7 @@
 
 A more advanced, serverless, and free uptime monitoring & status page solution, powered by Cloudflare Workers, complete with a user-friendly interface.
 
-🎉 **[UPDATE 2026/01/03]** I have just migrated UptimeFlare from KV to D1 Database. I also updated the Terraform Cloudflare provider to v5 and improved the deployment process. The data structure has been optimized to resolve long-standing performance issues.
-
-New users can deploy directly, while existing users can have a simple auto migration process (upgrade docs below)! Feel free to open an issue if you run into any trouble deploying.
-
 ## ⭐Features
-
 - Open-source, easy to deploy (in under 10 minutes, no local tools required), and free
 - Monitoring capabilities
   - Up to 50 checks at 1-minute intervals
@@ -23,10 +18,8 @@ New users can deploy directly, while existing users can have a simple auto migra
   - Custom status code & keyword checks for HTTP(s)
   - Downtime notification supporting [100+ notification channels](https://github.com/caronc/apprise/wiki)
   - Customizable Webhook
-  - Multi-language support (English/Chinese)
 - Status page
   - Interactive ping (response time) chart for all types of monitors
-  - Scheduled maintenances alerts & Incident history page
   - Responsive UI that adapts to your system theme
   - Customizable status page
   - Use your own domain with CNAME
@@ -45,14 +38,6 @@ Some screenshots:
 
 Please refer to [Wiki](https://github.com/lyc8503/UptimeFlare/wiki)
 
-## 🚀Upgrade existing deployments
-
-Get the latest features right away with [simple upgrade process](https://github.com/lyc8503/UptimeFlare/wiki/Synchronize-updates-from-upstream)
-
-## ⚙️Docs for developer
-
-To contribute new features or customize your deployment furthermore, see [here](https://github.com/lyc8503/UptimeFlare/wiki/How-to-develop).
-
 ## New features (TODOs)
 
 - [x] Specify region for monitors
@@ -64,25 +49,8 @@ To contribute new features or customize your deployment furthermore, see [here](
 - [x] Improve docs by providing simple examples
 - [x] Notification grace period
 - [ ] SSL certificate checks
-- [x] ~~Self-host Dockerfile~~
-- [x] Incident history
-- [x] Improve `checkLocationWorkerRoute` and fix possible `proxy failed`
-- [x] Groups
+- [ ] Self-host Dockerfile
+- [ ] Incident timeline
+- [ ] Improve `checkLocationWorkerRoute` and fix possible `proxy failed`
+- [ ] Groups 
 - [x] Remove old incidents
-- [x] ~~Known issue~~: `fetch` doesn't support non-standard port (resolved after CF update)
-- [x] Compatibility date update
-- [x] Scheduled Maintenance
-- [x] Add docs for dev
-- [x] Migration to Terraform Cloudflare provider version 5.x
-- [x] Cloudflare D1 database
-- [x] Scheduled maintenances (via IIFE)
-- [x] Simpler config example
-- [x] Upcoming maintenances
-- [x] Universal Webhook upgrade
-- [x] i18n...? (maybe)
-- [ ] ICMP via proxy?
-- [x] Add default UA
-- [x] Customizable footer
-- [x] New header logo
-- [x] Improve CPU time usage
-- [x] Local deployment (docs WIP)

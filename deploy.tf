@@ -2,7 +2,7 @@ terraform {
   required_providers {
     cloudflare = {
       source  = "cloudflare/cloudflare"
-      version = "~> 5"
+      version = "~> 4"
     }
   }
 }
@@ -16,58 +16,30 @@ variable "CLOUDFLARE_ACCOUNT_ID" {
   type = string
 }
 
-variable "enable_do_migration" {
-  type    = bool
-  default = false
+resource "cloudflare_workers_kv_namespace" "uptimeflare_kv" {
+  account_id = var.CLOUDFLARE_ACCOUNT_ID
+  title      = "uptimeflare_kv"
 }
 
-resource "cloudflare_d1_database" "uptimeflare_d1" {
-  account_id            = var.CLOUDFLARE_ACCOUNT_ID
-  name                  = "uptimeflare_d1"
-  read_replication = {
-    mode = "auto"
+resource "cloudflare_worker_script" "uptimeflare" {
+  account_id         = var.CLOUDFLARE_ACCOUNT_ID
+  name               = "uptimeflare_worker"
+  content            = file("worker/dist/index.js")
+  module             = true
+  compatibility_date = "2023-11-08"
+
+  kv_namespace_binding {
+    name         = "UPTIMEFLARE_STATE"
+    namespace_id = cloudflare_workers_kv_namespace.uptimeflare_kv.id
   }
 }
 
-resource "cloudflare_workers_script" "uptimeflare_worker" {
-  account_id          = var.CLOUDFLARE_ACCOUNT_ID
-  script_name         = "uptimeflare_worker"
-  main_module         = "worker/dist/index.js"
-  content_file        = "worker/dist/index.js"
-  content_sha256      = filesha256("worker/dist/index.js")
-  compatibility_date  = "2025-04-02"
-  compatibility_flags = ["nodejs_compat"]
-
-  observability = {
-    enabled = true
-    logs = {
-      enabled         = true
-      invocation_logs = true
-    }
-  }
-
-  migrations = var.enable_do_migration ? {
-    new_tag            = "v1"
-    new_sqlite_classes = ["RemoteChecker"]
-  } : null
-
-  bindings = [{
-    name       = "REMOTE_CHECKER_DO"
-    class_name = "RemoteChecker"
-    type       = "durable_object_namespace"
-    }, {
-    name = "UPTIMEFLARE_D1"
-    type = "d1"
-    id   = cloudflare_d1_database.uptimeflare_d1.id
-  }]
-}
-
-resource "cloudflare_workers_cron_trigger" "uptimeflare_worker_cron" {
+resource "cloudflare_worker_cron_trigger" "uptimeflare_worker_cron" {
   account_id  = var.CLOUDFLARE_ACCOUNT_ID
-  script_name = cloudflare_workers_script.uptimeflare_worker.script_name
-  schedules = [{
-    cron = "* * * * *" # every 1 minute, you can reduce the write counts by increase the worker settings of `kvWriteCooldownMinutes`
-  }]
+  script_name = cloudflare_worker_script.uptimeflare.name
+  schedules = [
+    "* * * * *", # every 1 minute, you can reduce the KV write by increase the worker settings of `kvWriteCooldownMinutes`
+  ]
 }
 
 resource "cloudflare_pages_project" "uptimeflare" {
@@ -75,25 +47,13 @@ resource "cloudflare_pages_project" "uptimeflare" {
   name              = "uptimeflare"
   production_branch = "main"
 
-  deployment_configs = {
-    # SMH Cloudflare provider will throw an error without preview config
-    preview = {
-      fail_open = false
-    }
-    production = {
-      d1_databases = {
-        UPTIMEFLARE_D1 = {
-          id = cloudflare_d1_database.uptimeflare_d1.id
-        }
+  deployment_configs {
+    production {
+      kv_namespaces = {
+        UPTIMEFLARE_STATE = cloudflare_workers_kv_namespace.uptimeflare_kv.id
       }
-      compatibility_date  = "2025-04-02"
+      compatibility_date  = "2023-11-08"
       compatibility_flags = ["nodejs_compat"]
-      fail_open           = false
     }
-  }
-
-  # SMH it will error without this build_config
-  build_config = {
-    root_dir = "/"
   }
 }
