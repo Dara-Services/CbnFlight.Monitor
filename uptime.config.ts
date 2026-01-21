@@ -1,134 +1,203 @@
-// This is a simplified example config file for quickstart
-// Some not frequently used features are omitted/commented out here
-// For a full-featured example, please refer to `uptime.config.full.ts`
-
-// Don't edit this line
-import { MaintenanceConfig, PageConfig, WorkerConfig } from './types/config'
-
-const pageConfig: PageConfig = {
-  // Title for your status page
-  title: "lyc8503's Status Page",
-  // Links shown at the header of your status page, could set `highlight` to `true`
+const pageConfig = {
+  title: "CbnFlight API Status Page",
   links: [
-    { link: 'https://github.com/lyc8503', label: 'GitHub' },
-    { link: 'https://blog.lyc8503.net/', label: 'Blog' },
-    { link: 'mailto:me@lyc8503.net', label: 'Email Me', highlight: true },
+    {link: 'https://github.com/Dara-Services', label: 'GitHub'},
+    {link: 'mailto:jc1997hdez@dara-services.com', label: 'Email Me', highlight: true},
   ],
 }
 
-const workerConfig: WorkerConfig = {
-  // Define all your monitors here
+const workerConfig = {
+  kvWriteCooldownMinutes: 3,
+  // passwordProtection: 'username:password',
   monitors: [
-    // Example HTTP Monitor
     {
-      // `id` should be unique, history will be kept if the `id` remains constant
-      id: 'foo_monitor',
-      // `name` is used at status page and callback message
-      name: 'My API Monitor',
-      // `method` should be a valid HTTP Method
+      id: 'identity_service',
+      name: 'Identity Service',
       method: 'GET',
-      // `target` is a valid URL
-      target: 'https://example.com',
-      // [OPTIONAL] `tooltip` is ONLY used at status page to show a tooltip
-      tooltip: 'This is a tooltip for this monitor',
-      // [OPTIONAL] `statusPageLink` is ONLY used for clickable link at status page
-      statusPageLink: 'https://example.com',
-      // [OPTIONAL] `expectedCodes` is an array of acceptable HTTP response codes, if not specified, default to 2xx
+      target: 'https://api.cbnflight.com/api/identity/alive',
+      tooltip: '',
       expectedCodes: [200],
-      // [OPTIONAL] `timeout` in millisecond, if not specified, default to 10000
       timeout: 10000,
-      // [OPTIONAL] headers to be sent
-      headers: {
-        'User-Agent': 'Uptimeflare',
-        Authorization: 'Bearer YOUR_TOKEN_HERE',
-      },
-      // [OPTIONAL] body to be sent (require POST/PUT/PATCH method)
-      // body: 'Hello, world!',
-      // [OPTIONAL] if specified, the response must contains the keyword to be considered as operational.
-      // responseKeyword: 'success',
-      // [OPTIONAL] if specified, the response must NOT contains the keyword to be considered as operational.
-      // responseForbiddenKeyword: 'bad gateway',
-      // [OPTIONAL] if specified, will call the check proxy to check the monitor, mainly for geo-specific checks
-      // refer to docs https://github.com/lyc8503/UptimeFlare/wiki/Check-proxy-setup before setting this value
-      // currently supports `worker://`, `globalping://` and `http(s)://` proxies
-      // checkProxy: 'worker://weur',
-      // [OPTIONAL] if true, the check will fallback to local if the specified proxy is down
-      // checkProxyFallback: true,
     },
-    // Example TCP Monitor
     {
-      id: 'test_tcp_monitor',
-      name: 'Example TCP Monitor',
-      // `method` should be `TCP_PING` for tcp monitors
-      method: 'TCP_PING',
-      // `target` should be `host:port` for tcp monitors
-      target: '1.2.3.4:22',
-      tooltip: 'My production server SSH',
-      statusPageLink: 'https://example.com',
-      timeout: 5000,
-    },
-  ],
-  // [Optional] Notification settings
-  notification: {
-    // [Optional] Notification webhook settings, if not specified, no notification will be sent
-    // More info at Wiki: https://github.com/lyc8503/UptimeFlare/wiki/Setup-notification
-    webhook: {
-      // [Required] webhook URL (example: Telegram Bot API)
-      url: 'https://api.telegram.org/bot123456:ABCDEF/sendMessage',
-      // [Optional] HTTP method, default to 'GET' for payloadType=param, 'POST' otherwise
-      // method: 'POST',
-      // [Optional] headers to be sent
-      // headers: {
-      //   foo: 'bar',
-      // },
-      // [Required] Specify how to encode the payload
-      // Should be one of 'param', 'json' or 'x-www-form-urlencoded'
-      // 'param': append url-encoded payload to URL search parameters
-      // 'json': POST json payload as body, set content-type header to 'application/json'
-      // 'x-www-form-urlencoded': POST url-encoded payload as body, set content-type header to 'x-www-form-urlencoded'
-      payloadType: 'x-www-form-urlencoded',
-      // [Required] payload to be sent
-      // $MSG will be replaced with the human-readable notification message
-      payload: {
-        chat_id: 12345678,
-        text: '$MSG',
-      },
-      // [Optional] timeout calling this webhook, in millisecond, default to 5000
+      id: 'payment_service',
+      name: 'Payment Service',
+      method: 'GET',
+      target: 'https://api.cbnflight.com/api/payment/alive',
+      tooltip: '',
+      expectedCodes: [200],
       timeout: 10000,
     },
-    // [Optional] timezone used in notification messages, default to "Etc/GMT"
-    timeZone: 'Asia/Shanghai',
-    // [Optional] grace period in minutes before sending a notification
-    // notification will be sent only if the monitor is down for N continuous checks after the initial failure
-    // if not specified, notification will be sent immediately
-    gracePeriod: 5,
-  },
+    {
+      id: 'crm_service',
+      name: 'CRM Service',
+      method: 'GET',
+      target: 'https://api.cbnflight.com/api/crm/alive',
+      tooltip: '',
+      expectedCodes: [200],
+      timeout: 10000,
+    },
+    {
+      id: 'notifications_service',
+      name: 'Notifications Service',
+      method: 'GET',
+      target: 'https://api.cbnflight.com/api/notifications/alive',
+      tooltip: '',
+      expectedCodes: [200],
+      timeout: 10000,
+    },
+    {
+      id: 'realestate_service',
+      name: 'RealEstate Service',
+      method: 'GET',
+      target: 'https://api.cbnflight.com/api/realestate/alive',
+      tooltip: '',
+      expectedCodes: [200],
+      timeout: 10000,
+    },
+    {
+      id: 'shops_service',
+      name: 'Shops Service',
+      method: 'GET',
+      target: 'https://api.cbnflight.com/api/shops/alive',
+      tooltip: '',
+      expectedCodes: [200],
+      timeout: 10000,
+    },
+    {
+      id: 'filegw_service',
+      name: 'FileGateway Service',
+      method: 'GET',
+      target: 'https://api.cbnflight.com/api/filegw/alive',
+      tooltip: '',
+      expectedCodes: [200],
+      timeout: 10000,
+    },
+    {
+      id: 'rabbitmq_management',
+      name: 'RabbitMQ Management API',
+      method: 'GET',
+      target: 'https://broker.cbnflight.com/api/overview',
+      tooltip: 'Chequeo de la API de administración de RabbitMQ',
+      expectedCodes: [200],
+      timeout: 10000,
+      headers: {
+        'Authorization': 'Basic ' + btoa('cbnflight:GHORiveBT3XBY3PXFJIS4Jsbs25PzDCfuITqTDOQ'),
+      }
+    },
+    {
+      id: 'extension_server_freepbx',
+      name: 'Python FreePBX Extension Server',
+      method: 'GET',
+      target: 'http://64.23.183.189:9001/keepalive',
+      tooltip: 'Chequeo del servidor de extensiones de FreePBX',
+      expectedCodes: [200],
+      timeout: 10000,
+    }
+  ],
+  callbacks: {
+    onStatusChange: async (
+      env: any,
+      monitor: any,
+      isUp: boolean,
+      timeIncidentStart: number,
+      timeNow: number,
+      reason: string
+    ) => {
+
+      const appriseApiServer: string = "https://apprise.cbnflight.com/notify";
+      const recipientUrl: string = "tgram://7867477051:AAGuYw37lW8RonYvhSfnDch-GePH0TT6yQs/-1002019874675";
+      // const recipientUrl: string = "tgram://7867477051:AAGuYw37lW8RonYvhSfnDch-GePH0TT6yQs/-4539254140"; => Test Channel
+      const timeZone: string = "America/Havana";
+
+      const incidentTime = new Date().toLocaleString('en-US', {timeZone});
+      let title, message;
+
+      const downtimeDuration = timeNow - timeIncidentStart; // seconds
+
+      if (isUp && downtimeDuration >= 300) { // notify only if the monitor is up and the downtime is greater than 5 minutes
+        const downtimeHours = Math.floor(downtimeDuration / 3600);
+        const downtimeMinutes = Math.floor((downtimeDuration % 3600) / 60);
+        const downtimeSeconds = downtimeDuration % 60;
+
+        title = `✅ ${monitor.name} está OPERATIVO`;
+        message = `✅ *Servicio Recuperado*
+*Monitor*: ${monitor.name}
+*ID*: ${monitor.id}
+*Method*: ${monitor.method}
+*Target*: ${monitor.target}
+
+*Hora del reporte*: ${incidentTime}
+*Duración de la Caída*: ${downtimeHours} horas, ${downtimeMinutes} minutos y ${downtimeSeconds} segundos`;
+
+        try {
+          await fetch(appriseApiServer, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': 'Basic ' + btoa('cbnflight:M8gEu0qQYAhUndMitZHAygr2oYd4DOUYN6tn3RBA'),
+            },
+            body: JSON.stringify({
+              urls: recipientUrl,
+              title: title,
+              body: message,
+              format: 'markdown',
+            }),
+          });
+        } catch (error) {
+          console.error('Error al enviar la notificación de estado:', error);
+        }
+
+      }
+    },
+    onIncident: async (
+      env: any,
+      monitor: any,
+      timeIncidentStart: number,
+      timeNow: number,
+      reason: string
+    ) => {
+
+      const appriseApiServer: string = "https://apprise.cbnflight.com/notify";
+      const recipientUrl: string = "tgram://7867477051:AAGuYw37lW8RonYvhSfnDch-GePH0TT6yQs/-1002019874675";
+      // const recipientUrl: string = "tgram://7867477051:AAGuYw37lW8RonYvhSfnDch-GePH0TT6yQs/-4539254140"; => Test Channel
+      const timeZone: string = "America/Havana";
+
+      const downtimeDuration = timeNow - timeIncidentStart; // seconds
+      const incidentTime = new Date().toLocaleString('en-US', {timeZone});
+
+      if (downtimeDuration <= 270 || downtimeDuration > 330) return; // notify only in the 5th minute
+
+      const title = `🚨 ${monitor.name} está CAÍDO hace ${downtimeDuration} segundos`;
+      const message = `🚨 *Incidente Detectado*
+*Monitor*: ${monitor.name}
+*ID*: ${monitor.id}
+*Method*: ${monitor.method}
+*Target*: ${monitor.target}
+*Razón*: ${reason}
+
+*Hora del reporte*: ${incidentTime}`;
+
+      try {
+        await fetch(appriseApiServer, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': 'Basic ' + btoa('cbnflight:M8gEu0qQYAhUndMitZHAygr2oYd4DOUYN6tn3RBA'),
+          },
+          body: JSON.stringify({
+            urls: recipientUrl,
+            title: title,
+            body: message,
+            format: 'markdown',
+          }),
+        });
+      } catch (error) {
+        console.error('Error al enviar la notificación de estado:', error);
+      }
+
+    },
+  }
 }
 
-// You can define multiple maintenances here
-// During maintenance, an alert will be shown at status page
-// Also, related downtime notifications will be skipped (if any)
-// Of course, you can leave it empty if you don't need this feature
-
-// const maintenances: MaintenanceConfig[] = []
-
-const maintenances: MaintenanceConfig[] = [
-  {
-    // [Optional] Monitor IDs to be affected by this maintenance
-    monitors: ['foo_monitor', 'bar_monitor'],
-    // [Optional] default to "Scheduled Maintenance" if not specified
-    title: 'Test Maintenance',
-    // Description of the maintenance, will be shown at status page
-    body: 'This is a test maintenance, server software upgrade',
-    // Start time of the maintenance, in UNIX timestamp or ISO 8601 format
-    start: '2020-01-01T00:00:00+08:00',
-    // [Optional] end time of the maintenance, in UNIX timestamp or ISO 8601 format
-    // if not specified, the maintenance will be considered as on-going
-    end: '2050-01-01T00:00:00+08:00',
-    // [Optional] color of the maintenance alert at status page, default to "yellow"
-    color: 'blue',
-  },
-]
-
-// Don't edit this line
-export { maintenances, pageConfig, workerConfig }
+export {pageConfig, workerConfig}
