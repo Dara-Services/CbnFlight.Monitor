@@ -32,7 +32,7 @@ export default function MaintenanceAlert({
         </span>
       }
       color={
-        upcoming ? true ?? 'gray' : maintenance.color || 'yellow'
+        upcoming ? 'gray' ?? 'gray' : maintenance.color || 'yellow'
       }
       withCloseButton={false}
       style={{ margin: '16px auto 0 auto', ...style }}
