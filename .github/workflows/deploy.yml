@@ -94,8 +94,8 @@ jobs:
 
           echo "Try importing existing resources..."
           terraform import cloudflare_d1_database.uptimeflare_d1 "$TF_VAR_CLOUDFLARE_ACCOUNT_ID/$D1_ID" || echo "D1 database import failed (might be new), continuing..."
-          terraform import cloudflare_workers_script.uptimeflare_worker "$TF_VAR_CLOUDFLARE_ACCOUNT_ID/uptimeflare_worker-cbnflight" || echo "WARNING: Worker script import failed, continuing..."
-          terraform import cloudflare_workers_cron_trigger.uptimeflare_worker_cron "$TF_VAR_CLOUDFLARE_ACCOUNT_ID/uptimeflare_worker-cbnflight" || echo "WARNING: Cron trigger import failed, continuing..."
+          terraform import cloudflare_worker_script.uptimeflare_worker "$TF_VAR_CLOUDFLARE_ACCOUNT_ID/uptimeflare_worker-cbnflight" || echo "WARNING: Worker script import failed, continuing..."
+          terraform import cloudflare_worker_cron_trigger.uptimeflare_worker_cron "$TF_VAR_CLOUDFLARE_ACCOUNT_ID/uptimeflare_worker-cbnflight" || echo "WARNING: Cron trigger import failed, continuing..."
           terraform import cloudflare_pages_project.uptimeflare "$TF_VAR_CLOUDFLARE_ACCOUNT_ID/uptimeflare-cbnflight" || echo "WARNING: Pages project import failed, continuing..."
 
           terraform apply -auto-approve -input=false

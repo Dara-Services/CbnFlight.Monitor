@@ -27,7 +27,7 @@ resource "cloudflare_d1_database" "uptimeflare_d1" {
   name       = "uptimeflare_d1-cbnflight"
 }
 
-resource "cloudflare_workers_script" "uptimeflare_worker" {
+resource "cloudflare_worker_script" "uptimeflare_worker" {
   account_id         = var.CLOUDFLARE_ACCOUNT_ID
   name               = "uptimeflare_worker-cbnflight"
   content            = file("worker/dist/index.js")
@@ -50,9 +50,9 @@ resource "cloudflare_workers_script" "uptimeflare_worker" {
   }
 }
 
-resource "cloudflare_workers_cron_trigger" "uptimeflare_worker_cron" {
+resource "cloudflare_worker_cron_trigger" "uptimeflare_worker_cron" {
   account_id  = var.CLOUDFLARE_ACCOUNT_ID
-  script_name = cloudflare_workers_script.uptimeflare_worker.name
+  script_name = cloudflare_worker_script.uptimeflare_worker.name
   schedules = [
     "* * * * *", # every 1 minute
   ]
