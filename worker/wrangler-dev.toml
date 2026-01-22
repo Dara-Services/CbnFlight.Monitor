@@ -1,4 +1,4 @@
-name = "uptimeflare_worker"
+name = "uptimeflare_worker-cbnflight"
 main = "src/index.ts"
 compatibility_date = "2023-11-08"
 kv_namespaces = [{ binding = "UPTIMEFLARE_STATE", id = "UPTIMEFLARE_STATE" }]
